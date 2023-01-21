@@ -1,4 +1,4 @@
-Welcome to my Smart Contract focussed repo!
+### Welcome to my Smart Contract focussed repo!
 
 I am an experienced Smart Contract Developer and Auditor who has spent the last 10 years working in the Blockchain industry. 
 
