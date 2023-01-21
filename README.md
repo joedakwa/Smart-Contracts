@@ -10,7 +10,7 @@ I am by no means a "maximalist". By that, I am strictly a Blockchain advocate. I
 
 I am very passionate about Ravencoin, Bitcoin, Litecoin, ZCash, Monero, Ethereum, Avalanche, Fantom and so on...
 
-I appreciate the underlying technologies that programatically form the base of these great ecosystems and i encourage everyone to dive deep into each to understand their capabilities and problems they are trying to solve.
+I appreciate the underlying technologies that programatically form the base of these great ecosystems and I encourage everyone to dive deep into each to understand their capabilities and problems they are trying to solve.
 
 Please feel free to connect with me on my Twitter page and LinkedIn. 
 
