@@ -107,7 +107,7 @@ Calling the init function in IVotingStrategy
 
    * @notice Invoked by RoundImplementation on creation to
    * set the round for which the voting contracts is to be used
-   *
+   
    */
 ```Solidity
   function init() external {
@@ -123,7 +123,7 @@ And now, the attacker has the roundAddress under control. Bob can now, as he is 
    * - this would be triggered when a voter casts their vote via grant explorer
    * - can be invoked by the round
    * - supports ERC20 and Native token transfer
-   *
+   
    * @param encodedVotes encoded list of votes
    * @param voterAddress voter address
    */
