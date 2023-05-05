@@ -19,8 +19,8 @@ This repository represents my collection of vulnerabilities and bug findings for
 | Vulnerability                                                                                                                                             | Severity      | Protocol Type     |          |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ | -------- |
 | Init function exposed                                                                     | High          |       NFT Lending Platform
-| [Bypassing modify Blacklist function](Immunefi/README.md#bypassing-modify-blacklist-function)                                                             | Medium        | Aura Finance  
-| [Owner can steal all user funds](Immunefi/README.md#owner-can-steal-all-user-funds)                                                                       | Medium        | Davos        |  |
+| RoundImplementation can be frontrunned                                                             | Medium        | Public Grants System  
+|                                                                        | Medium        | Davos        |  |
 | [lend() function always return minted tokens equal to zero](Immunefi/README.md#lend-function-always-return-minted-tokens-equal-to-zero)                   | Low           | UniLend      |  |
 | [Wrong use of assembly builtin function](Immunefi/README.md#wrong-use-of-assembly-builtin-function)                                                       | Low           | Hyperlane    |  |
 | [createCanonicalERC20Wrapper reverts on right erc20 implementation](Immunefi/README.md#createcanonicalerc20wrapper-reverts-on-right-erc20-implementation) | Low           | Superfluid   |  |
@@ -81,8 +81,128 @@ Also this check must also be added to the init function, if you only want the in
 "require(!initialized, "Contract instance has already been initialized");"
 ```
 
+Go-langer
 
+high
 
+RoundImplementation can be front-runned and initialized by a malicious user
+Summary
+A malicious user can frontrun and call the init function in RoundImplementation and take control of the business logic
+
+Vulnerability Detail
+An attacker can call the initialize function and therefore assign themselves privaleged roles, such as DEFAULT_ADMIN_ROLE
+and ROUND_OPERATOR_ROLE. In turn, can then call all the functions assigned to this Modifier role, including both functions:
+
+function withdraw(address tokenAddress, address payable recipent) external onlyRole(ROUND_OPERATOR_ROLE) {```
+
+function setReadyForPayout() external payable roundHasEnded onlyRole(ROUND_OPERATOR_ROLE) {
+to name a few. Subsequently, Bob, now calling the Initializer in roundImplementation can also the init functions in both IPayoutStratgey and IVotingStrategy.
+
+Calling the init function in IPayoutStrategy
+
+@notice Invoked by RoundImplementation on creation to
+set the round for which the payout strategy is to be used
+function init() external {
+    require(roundAddress == address(0x0), "roundAddress already set");
+    roundAddress = payable(msg.sender);
+
+    // set the token address
+    tokenAddress = RoundImplementation(roundAddress).token();
+
+    isReadyForPayout = false;
+  }
+And now, the attacker has the roundAddress under control, and can now also call
+
+function setReadyForPayout() external payable isRoundContract roundHasEnded {
+    require(isReadyForPayout == false, "isReadyForPayout already set");
+    isReadyForPayout = true;
+    emit ReadyForPayout();
+  }
+and can then call function withdrawFunds(address payable withdrawAddress) external payable virtual isRoundOperator {
+passing an address of their choice,
+
+Impact
+This means that anyone who has control of the roundAddress and admin roles can effectively take control of the entire round, including its funds, participants, and payout strategy. The protocols' business logic.
+
+Note: I have submitted this as a high due to the fact that loss of funds is a realistic scenario. I have submitted a similar issue regarding the IVoting exposure that happens in the same fashion as above, but as a medium.
+
+Code Snippet
+https://github.com/sherlock-audit/2023-03-Gitcoin/blob/main/contracts/contracts/round/RoundImplementation.sol#L196
+
+Tool used
+Vs Code
+Manual Review
+
+Recommendation
+I would suggest to protect key functions like below:
+
+function initialize(bytes calldata encodedParameters, address _alloSettings) external Initializer onlyOwner {
+function init() internal {
+  require(roundAddress == address(0x0), "roundAddress already set");
+  roundAddress = address(this);
+  
+  
+Go-langer
+
+high
+
+RoundImplementation can be front-runned and initialized by a malicious user
+Summary
+A malicious user can frontrun and call the init function in RoundImplementation and take control of the business logic
+
+Vulnerability Detail
+An attacker can call the initialize function and therefore assign themselves privaleged roles, such as DEFAULT_ADMIN_ROLE
+and ROUND_OPERATOR_ROLE. In turn, can then call all the functions assigned to this Modifier role, including both functions:
+
+function withdraw(address tokenAddress, address payable recipent) external onlyRole(ROUND_OPERATOR_ROLE) {```
+
+function setReadyForPayout() external payable roundHasEnded onlyRole(ROUND_OPERATOR_ROLE) {
+to name a few. Subsequently, Bob, now calling the Initializer in roundImplementation can also the init functions in both IPayoutStratgey and IVotingStrategy.
+
+Calling the init function in IPayoutStrategy
+
+@notice Invoked by RoundImplementation on creation to
+set the round for which the payout strategy is to be used
+function init() external {
+    require(roundAddress == address(0x0), "roundAddress already set");
+    roundAddress = payable(msg.sender);
+
+    // set the token address
+    tokenAddress = RoundImplementation(roundAddress).token();
+
+    isReadyForPayout = false;
+  }
+And now, the attacker has the roundAddress under control, and can now also call
+
+function setReadyForPayout() external payable isRoundContract roundHasEnded {
+    require(isReadyForPayout == false, "isReadyForPayout already set");
+    isReadyForPayout = true;
+    emit ReadyForPayout();
+  }
+and can then call function withdrawFunds(address payable withdrawAddress) external payable virtual isRoundOperator {
+passing an address of their choice,
+
+Impact
+This means that anyone who has control of the roundAddress and admin roles can effectively take control of the entire round, including its funds, participants, and payout strategy. The protocols' business logic.
+
+Note: I have submitted this as a high due to the fact that loss of funds is a realistic scenario. I have submitted a similar issue regarding the IVoting exposure that happens in the same fashion as above, but as a medium.
+
+Code Snippet
+https://github.com/sherlock-audit/2023-03-Gitcoin/blob/main/contracts/contracts/round/RoundImplementation.sol#L196
+
+Tool used
+Vs Code
+Manual Review
+
+Recommendation
+I would suggest to protect key functions like below:
+
+function initialize(bytes calldata encodedParameters, address _alloSettings) external Initializer onlyOwner {
+function init() internal {
+  require(roundAddress == address(0x0), "roundAddress already set");
+  roundAddress = address(this);
+  
+  
 
 
 ## Contacts
