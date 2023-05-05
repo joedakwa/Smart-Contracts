@@ -24,9 +24,9 @@ This repository represents my collection of vulnerabilities and bug findings for
 | [4] Business Logic can be manipulated                   | High           | Public Grants System      |  |
 | [5] Precision Loss in setReadyForPayout                                                       | Medium           | Staking and Lending Platform    |  |
 | [6] |            |    |  |
-|                                                                                    |            |        |  |
-|                                                                                |  |        |  |
-|                                                |  |       |  |
+| [7]                                                                                   |            |        |  |
+| [8]                                                                               |  |        |  |
+| [9]                                               |  |       |  |
 
 
 
