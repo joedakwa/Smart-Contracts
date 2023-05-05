@@ -18,7 +18,7 @@ This repository represents my collection of vulnerabilities and bug findings for
 
 | Vulnerability                                                                                                                                             | Severity      | Protocol     |          |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ | -------- |
-| Init function exposed                                                                     | High          | UniLend      | Immunefi |
+| Init function exposed                                                                     | High          | UniLend      
 | [Bypassing modify Blacklist function](Immunefi/README.md#bypassing-modify-blacklist-function)                                                             | Medium        | Aura Finance |  |
 | [Owner can steal all user funds](Immunefi/README.md#owner-can-steal-all-user-funds)                                                                       | Medium        | Davos        |  |
 | [lend() function always return minted tokens equal to zero](Immunefi/README.md#lend-function-always-return-minted-tokens-equal-to-zero)                   | Low           | UniLend      |  |
