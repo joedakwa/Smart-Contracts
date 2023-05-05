@@ -347,10 +347,8 @@ To mitigate this issue, set the values to fixed point decimals and use safeMath 
 
 // calculate fees using SafeMath library
 
-    ```
-    uint256 protocolFeeAmount = matchAmount.mul(protocolFeePercentage).div(denominator);
-    uint256 roundFeeAmount = matchAmount.mul(roundFeePercentage).div(denominator);
-    ```
+    ```uint256 protocolFeeAmount = matchAmount.mul(protocolFeePercentage).div(denominator);
+       uint256 roundFeeAmount = matchAmount.mul(roundFeePercentage).div(denominator);```
 
 
 ## Contacts
