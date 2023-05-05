@@ -22,7 +22,7 @@ This repository represents my collection of vulnerabilities and bug findings for
 | RoundImplementation can be frontrunned                                                             | Medium        | Public Grants System  
 | Unsafe usage of ERC20 transferFrom                                                                       | Medium        |    NFT Staking Platform     |  |
 | Business Logic can be manipulated                   | High           | Public Grants System      |  |
-| [Wrong use of assembly builtin function](Immunefi/README.md#wrong-use-of-assembly-builtin-function)                                                       | Low           | Hyperlane    |  |
+| Precision Loss in setReadyForPayout                                                       | Medium           | Staking and Lending Platform    |  |
 | [createCanonicalERC20Wrapper reverts on right erc20 implementation](Immunefi/README.md#createcanonicalerc20wrapper-reverts-on-right-erc20-implementation) | Low           | Superfluid   |  |
 | [Unchecked low level call](Immunefi/README.md#unchecked-low-level-call)                                                                                   | Low           | Aurora       |  |
 | [Wrong emission of event](Immunefi/README.md#wrong-emission-of-event)                                                                                     | Informational | Revest       |  |
@@ -307,6 +307,50 @@ function init() internal {
   require(roundAddress == address(0x0), "roundAddress already set");
   roundAddress = address(this);
 ```
+
+
+
+# Precision loss in function setReadyForPayout
+
+## Summary
+There is a danger of precision loss in the calculation to return protocolFeeAmount and roundFeeAmount
+
+## Vulnerability Detail
+
+The division operation
+
+```solidity
+matchAmount * alloSettings.protocolFeePercentage() / denominator
+matchAmount * roundFeePercentage) / denominator
+```
+
+Could result in precision loss if the values are not properly scaled.
+
+For example, if matchAmount is equal to 10^18 and ```alloSettings.protocolFeePercentage()```
+and ```roundFeePercentage``` are both equal to 1%, the result of the division operation would be (10^18 * 1%) / 100% = 10^16.
+However, since 10^16 is greater than the maximum value that can be represented by a uint256 integer (2^256-1), the result would be truncated, resulting in a loss of precision.
+
+## Impact
+
+If the calculation for protocolFeeAmount or roundFeeAmount results in a loss of precision, it could lead to an incorrect amount being
+deducted from the contract and sent to the protocol treasury or the round fee address. Similarly, if the calculation for neededFunds results in a loss of precision, it could lead to an incorrect amount being compared against the balance of the contract, which could result in an incorrect "Not enough funds in contract" error or allow an incorrect payout.
+
+
+
+## Tool used
+
+Vs code
+Manual Review
+
+## Recommendation
+To mitigate this issue, set the values to fixed point decimals and use safeMath library arithmetic operations.
+
+// calculate fees using SafeMath library
+
+    ```
+    uint256 protocolFeeAmount = matchAmount.mul(protocolFeePercentage).div(denominator);
+    uint256 roundFeeAmount = matchAmount.mul(roundFeePercentage).div(denominator);
+    ```
 
 
 ## Contacts
