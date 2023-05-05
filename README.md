@@ -23,15 +23,15 @@ This repository represents my collection of vulnerabilities and bug findings for
 | [3] Unsafe usage of ERC20 transferFrom                                                                       | Medium        |    NFT Staking Platform     |  |
 | [4] Business Logic can be manipulated                   | High           | Public Grants System      |  |
 | [5] Precision Loss in setReadyForPayout                                                       | Medium           | Staking and Lending Platform    |  |
-| [ |            |    |  |
-| [                                                                                   |            |        |  |
-| [                                                                               |  |        |  |
-| [                                               |  |       |  |
+| [6] |            |    |  |
+| [7]                                                                                   |            |        |  |
+| [8]                                                                               |  |        |  |
+| [9]                                               |  |       |  |
 
 
 
 
-# Init function left open for anyone to call and initialize the protocol.
+# [1] Init function left open for anyone to call and initialize the protocol.
 
 ## Summary
 Init function left open for anyone to call and initialize the protocol.
@@ -82,7 +82,7 @@ Also this check must also be added to the init function, if you only want the in
 
 
 
-# Exposed Initializer function in RoundImplementation allows for a malicious user to take control of Voting Stratgey
+# [2] Exposed Initializer function in RoundImplementation allows for a malicious user to take control of Voting Stratgey
 
 ## Summary
 Exposed Initializer function in RoundImplementation allows for a malicious user to take control of Voting Stratgey
@@ -192,7 +192,7 @@ function init() internal {
   
 
 
-# Unsafe usage of ERC20 transferFrom
+# [3] Unsafe usage of ERC20 transferFrom
 
 ## Summary
 Unsafe usage of ERC20 transferFrom
@@ -240,7 +240,7 @@ Its also worth using OZ SafeERC20 library when interacting with ERC20 tokens.
 
 
 
-# Business logic can be manipulated
+# [4] Business logic can be manipulated
 
 ## Summary
 A malicious user can frontrun and call the init function in RoundImplementation and take control of the business logic
@@ -310,7 +310,7 @@ function init() internal {
 
 
 
-# Precision loss in function setReadyForPayout
+# [5] Precision loss in function setReadyForPayout
 
 ## Summary
 There is a danger of precision loss in the calculation to return protocolFeeAmount and roundFeeAmount
