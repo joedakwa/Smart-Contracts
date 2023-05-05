@@ -18,15 +18,15 @@ This repository represents my collection of vulnerabilities and bug findings for
 
 | Vulnerability                                                                                                                                             | Severity      | Protocol Type     |          |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ | -------- |
-| Init function exposed                                                                     | High          |       NFT Lending Platform
-| RoundImplementation can be frontrunned                                                             | Medium        | Public Grants System  
-| Unsafe usage of ERC20 transferFrom                                                                       | Medium        |    NFT Staking Platform     |  |
-| Business Logic can be manipulated                   | High           | Public Grants System      |  |
-| Precision Loss in setReadyForPayout                                                       | Medium           | Staking and Lending Platform    |  |
-| [createCanonicalERC20Wrapper reverts on right erc20 implementation](Immunefi/README.md#createcanonicalerc20wrapper-reverts-on-right-erc20-implementation) | Low           | Superfluid   |  |
-| [Unchecked low level call](Immunefi/README.md#unchecked-low-level-call)                                                                                   | Low           | Aurora       |  |
-| [Wrong emission of event](Immunefi/README.md#wrong-emission-of-event)                                                                                     | Informational | Revest       |  |
-| [Wrong implementation of supportsInterface()](Immunefi/README.md#wrong-implementation-of-supportsinterface)                                               | Informational | Revest       |  |
+| [1] Init function exposed                                                                     | High          |       NFT Lending Platform
+| [2] RoundImplementation can be frontrunned                                                             | Medium        | Public Grants System  
+| [3] Unsafe usage of ERC20 transferFrom                                                                       | Medium        |    NFT Staking Platform     |  |
+| [4] Business Logic can be manipulated                   | High           | Public Grants System      |  |
+| [5] Precision Loss in setReadyForPayout                                                       | Medium           | Staking and Lending Platform    |  |
+| [ |            |    |  |
+| [                                                                                   |            |        |  |
+| [                                                                               |  |        |  |
+| [                                               |  |       |  |
 
 
 
