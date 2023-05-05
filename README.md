@@ -23,7 +23,7 @@ This repository represents my collection of vulnerabilities and bug findings for
 | [3] Unsafe usage of ERC20 transferFrom                                                                       | Medium        |    NFT Staking Platform     |  |
 | [4] Business Logic can be manipulated                   | High           | Public Grants System      |  |
 | [5] Precision Loss in setReadyForPayout                                                       | Medium           | Staking and Lending Platform    |  |
-|  |            |    |  |
+| [6 |            |    |  |
 |                                                                                    |            |        |  |
 |                                                                                |  |        |  |
 |                                                |  |       |  |
