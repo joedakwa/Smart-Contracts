@@ -81,127 +81,118 @@ Also this check must also be added to the init function, if you only want the in
 "require(!initialized, "Contract instance has already been initialized");"
 ```
 
+
 Go-langer
 
-high
+medium
 
-RoundImplementation can be front-runned and initialized by a malicious user
-Summary
-A malicious user can frontrun and call the init function in RoundImplementation and take control of the business logic
+# Exposed Initializer function in RoundImplementation allows for a malicious user to take control of Voting Stratgey
 
-Vulnerability Detail
-An attacker can call the initialize function and therefore assign themselves privaleged roles, such as DEFAULT_ADMIN_ROLE
-and ROUND_OPERATOR_ROLE. In turn, can then call all the functions assigned to this Modifier role, including both functions:
+## Summary
+Exposed Initializer function in RoundImplementation allows for a malicious user to take control of Voting Stratgey
 
-function withdraw(address tokenAddress, address payable recipent) external onlyRole(ROUND_OPERATOR_ROLE) {```
+"The IVotingStrategy (https://github.com/allo-protocol/contracts/blob/main/contracts/votingStrategy/IVotingStrategy.sol) provides a few methods and modifiers to help you implement a custom Voting Strategy.
+A Round contract will call the init() method of a Voting Strategy when the Round is itself initialized. This will set the value for the roundAddress state variable, which serves two purposes: one preventing reinitialization and adding authorization to certain methods that should only be called by the Round contract.
+Your implementation of the IVotingStrategy interface should implement a vote(bytes[],address) method. This is where your custom vote-counting logic should live."
 
-function setReadyForPayout() external payable roundHasEnded onlyRole(ROUND_OPERATOR_ROLE) {
-to name a few. Subsequently, Bob, now calling the Initializer in roundImplementation can also the init functions in both IPayoutStratgey and IVotingStrategy.
+## Vulnerability Detail
+An attacker (Bob) can call the initialize function in RoundImplementation.
 
-Calling the init function in IPayoutStrategy
+```solidity
+  function initialize(
+    bytes calldata encodedParameters,
+    address _alloSettings
+  ) external initializer {
+```
 
-@notice Invoked by RoundImplementation on creation to
-set the round for which the payout strategy is to be used
-function init() external {
-    require(roundAddress == address(0x0), "roundAddress already set");
-    roundAddress = payable(msg.sender);
+Subsequently, Bob, now calling the Initializer in roundImplementation can also the init functions in IVotingStrategy.
 
-    // set the token address
-    tokenAddress = RoundImplementation(roundAddress).token();
+Calling the init function in IVotingStrategy
 
-    isReadyForPayout = false;
+   * @notice Invoked by RoundImplementation on creation to
+   * set the round for which the voting contracts is to be used
+   *
+   */
+```Solidity
+  function init() external {
+    require(roundAddress == address(0), "init: roundAddress already set");
+    roundAddress = msg.sender;
   }
-And now, the attacker has the roundAddress under control, and can now also call
+```
 
-function setReadyForPayout() external payable isRoundContract roundHasEnded {
-    require(isReadyForPayout == false, "isReadyForPayout already set");
-    isReadyForPayout = true;
-    emit ReadyForPayout();
-  }
-and can then call function withdrawFunds(address payable withdrawAddress) external payable virtual isRoundOperator {
-passing an address of their choice,
+And now, the attacker has the roundAddress under control. Bob can now, as he is the roundAddress, call the below function in QuadraticFundingVotingStratgeyImplementation.
 
-Impact
-This means that anyone who has control of the roundAddress and admin roles can effectively take control of the entire round, including its funds, participants, and payout strategy. The protocols' business logic.
+@dev
+   * - more voters -> higher the gas
+   * - this would be triggered when a voter casts their vote via grant explorer
+   * - can be invoked by the round
+   * - supports ERC20 and Native token transfer
+   *
+   * @param encodedVotes encoded list of votes
+   * @param voterAddress voter address
+   */
 
-Note: I have submitted this as a high due to the fact that loss of funds is a realistic scenario. I have submitted a similar issue regarding the IVoting exposure that happens in the same fashion as above, but as a medium.
+```solidity
+  function vote(bytes[] calldata encodedVotes, address voterAddress) external override payable nonReentrant isRoundContract {
 
-Code Snippet
+    /// @dev iterate over multiple donations and transfer funds
+    for (uint256 i = 0; i < encodedVotes.length; i++) {
+
+      /// @dev decode encoded vote
+      (
+        address _token,
+        uint256 _amount,
+        address _grantAddress,
+        bytes32 _projectId
+      ) = abi.decode(encodedVotes[i], (
+        address,
+        uint256,
+        address,
+        bytes32
+      ));
+
+      if (_token == address(0)) {
+        /// @dev native token transfer to grant address
+        // slither-disable-next-line reentrancy-events
+        AddressUpgradeable.sendValue(payable(_grantAddress), _amount);
+      } else {
+
+        /// @dev erc20 transfer to grant address
+        // slither-disable-next-line arbitrary-send-erc20,reentrancy-events,
+        SafeERC20Upgradeable.safeTransferFrom(
+          IERC20Upgradeable(_token),
+          voterAddress,
+          _grantAddress,
+          _amount
+        );
+```
+
+## Impact
+This will allow Bob to manipulate votes in his favour, and manipulating the voting strategy. 
+
+
+## Code Snippet
 https://github.com/sherlock-audit/2023-03-Gitcoin/blob/main/contracts/contracts/round/RoundImplementation.sol#L196
 
-Tool used
-Vs Code
+https://github.com/sherlock-audit/2023-03-Gitcoin/blob/main/contracts/contracts/votingStrategy/IVotingStrategy.sol#L36
+
+## Tool used
+VS Code
+
 Manual Review
 
-Recommendation
-I would suggest to protect key functions like below:
+## Recommendation
+This will prevent the above scenario by securing both the Initializer function in RoundImplementation and the init function in IVotingStrategy.
 
+```solidity
 function initialize(bytes calldata encodedParameters, address _alloSettings) external Initializer onlyOwner {
+```
+
+```solidity
 function init() internal {
   require(roundAddress == address(0x0), "roundAddress already set");
   roundAddress = address(this);
-  
-  
-Go-langer
-
-high
-
-RoundImplementation can be front-runned and initialized by a malicious user
-Summary
-A malicious user can frontrun and call the init function in RoundImplementation and take control of the business logic
-
-Vulnerability Detail
-An attacker can call the initialize function and therefore assign themselves privaleged roles, such as DEFAULT_ADMIN_ROLE
-and ROUND_OPERATOR_ROLE. In turn, can then call all the functions assigned to this Modifier role, including both functions:
-
-function withdraw(address tokenAddress, address payable recipent) external onlyRole(ROUND_OPERATOR_ROLE) {```
-
-function setReadyForPayout() external payable roundHasEnded onlyRole(ROUND_OPERATOR_ROLE) {
-to name a few. Subsequently, Bob, now calling the Initializer in roundImplementation can also the init functions in both IPayoutStratgey and IVotingStrategy.
-
-Calling the init function in IPayoutStrategy
-
-@notice Invoked by RoundImplementation on creation to
-set the round for which the payout strategy is to be used
-function init() external {
-    require(roundAddress == address(0x0), "roundAddress already set");
-    roundAddress = payable(msg.sender);
-
-    // set the token address
-    tokenAddress = RoundImplementation(roundAddress).token();
-
-    isReadyForPayout = false;
-  }
-And now, the attacker has the roundAddress under control, and can now also call
-
-function setReadyForPayout() external payable isRoundContract roundHasEnded {
-    require(isReadyForPayout == false, "isReadyForPayout already set");
-    isReadyForPayout = true;
-    emit ReadyForPayout();
-  }
-and can then call function withdrawFunds(address payable withdrawAddress) external payable virtual isRoundOperator {
-passing an address of their choice,
-
-Impact
-This means that anyone who has control of the roundAddress and admin roles can effectively take control of the entire round, including its funds, participants, and payout strategy. The protocols' business logic.
-
-Note: I have submitted this as a high due to the fact that loss of funds is a realistic scenario. I have submitted a similar issue regarding the IVoting exposure that happens in the same fashion as above, but as a medium.
-
-Code Snippet
-https://github.com/sherlock-audit/2023-03-Gitcoin/blob/main/contracts/contracts/round/RoundImplementation.sol#L196
-
-Tool used
-Vs Code
-Manual Review
-
-Recommendation
-I would suggest to protect key functions like below:
-
-function initialize(bytes calldata encodedParameters, address _alloSettings) external Initializer onlyOwner {
-function init() internal {
-  require(roundAddress == address(0x0), "roundAddress already set");
-  roundAddress = address(this);
-  
+```
   
 
 
