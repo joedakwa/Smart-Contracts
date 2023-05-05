@@ -28,6 +28,7 @@ This repository represents my collection of vulnerabilities and bug findings for
 | [Wrong emission of event](Immunefi/README.md#wrong-emission-of-event)                                                                                     | Informational | Revest       |  |
 | [Wrong implementation of supportsInterface()](Immunefi/README.md#wrong-implementation-of-supportsinterface)                                               | Informational | Revest       |  |
 
+
 Go-langer
 
 medium
