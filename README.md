@@ -47,7 +47,9 @@ The attacker can change the values of ```protocolStorage()``` and ```supplyPosit
 ## Code Snippet
 
 https://github.com/sherlock-audit/2023-02-kairos/blob/main/kairos-contracts/src/Initializer.sol#L24
-## Tool used
+
+## Methods used
+
 Vs Code
 
 Manual Review
@@ -172,7 +174,8 @@ https://github.com/sherlock-audit/2023-03-Gitcoin/blob/main/contracts/contracts/
 
 https://github.com/sherlock-audit/2023-03-Gitcoin/blob/main/contracts/contracts/votingStrategy/IVotingStrategy.sol#L36
 
-## Tool used
+## Methods used
+
 VS Code
 
 Manual Review
@@ -218,8 +221,9 @@ https://github.com/sherlock-audit/2023-02-kairos/blob/main/kairos-contracts/src/
 
 https://github.com/sherlock-audit/2023-02-kairos/blob/main/kairos-contracts/src/utils/Erc20CheckedTransfer.sol#L8
 
-## Tool used
-vs code
+## Methods used
+
+VS Code
 Manual Review
 
 ## Recommendation
@@ -291,7 +295,8 @@ Note: I have submitted this as a high due to the fact that loss of funds is a re
 ## Code Snippet
 https://github.com/sherlock-audit/2023-03-Gitcoin/blob/main/contracts/contracts/round/RoundImplementation.sol#L196
 
-## Tool used
+## Methods used
+
 Vs Code
 Manual Review
 
@@ -337,19 +342,18 @@ deducted from the contract and sent to the protocol treasury or the round fee ad
 
 
 
-## Tool used
-
-Vs code
-Manual Review
-
 ## Recommendation
 To mitigate this issue, set the values to fixed point decimals and use safeMath library arithmetic operations.
 
 // calculate fees using SafeMath library
 
-    ```uint256 protocolFeeAmount = matchAmount.mul(protocolFeePercentage).div(denominator);
-       uint256 roundFeeAmount = matchAmount.mul(roundFeePercentage).div(denominator);```
+    uint256 protocolFeeAmount = matchAmount.mul(protocolFeePercentage).div(denominator);
+    uint256 roundFeeAmount = matchAmount.mul(roundFeePercentage).div(denominator);
 
+## Methods Used
+
+VS Code
+Manual Review
 
 ## Contacts
 
