@@ -16,7 +16,7 @@ I appreciate the underlying technologies that programatically form the base of t
 
 This repository represents my collection of vulnerabilities and bug findings for my portfolio.
 
-| Vulnerability                                                                                                                                             | Severity      | Protocol     | Platform |
+| Vulnerability                                                                                                                                             | Severity      | Protocol     
 | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- | ------------ | -------- |
 | Init function exposed                                                                     | High          | UniLend      | Immunefi |
 | [Bypassing modify Blacklist function](Immunefi/README.md#bypassing-modify-blacklist-function)                                                             | Medium        | Aura Finance | Immunefi |
