@@ -32,19 +32,13 @@ This repository represents my collection of vulnerabilities and bug findings for
 
 I am available for smart contract security consulting. Reach out to me on:
 
-- Twitter - [@0xRajkumar](https://twitter.com/0xRajkumar)
-- Discord - [0xRajkumar#1861](https://discordapp.com/users/794774992964550656)
-
-
-
-
-Please feel free to connect with me on my Twitter page and LinkedIn. 
-
 [Twitter](https://mobile.twitter.com/golanger85).
 
 [LinkedIn](https://uk.linkedin.com/in/joe-dakwa-92716065).
 
+Please feel free to connect with me on my Twitter page and LinkedIn. 
 
-I shall keep you posted on any useful articles that i discover, as I shall post them to my wiki page.
+
+I shall keep you posted on any useful articles that I compose, as I shall post them to my wiki page.
 
 https://github.com/joedakwa/Smart-Contracts/wiki
