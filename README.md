@@ -29,9 +29,7 @@ This repository represents my collection of vulnerabilities and bug findings for
 | [Wrong implementation of supportsInterface()](Immunefi/README.md#wrong-implementation-of-supportsinterface)                                               | Informational | Revest       |  |
 
 
-Go-langer
 
-medium
 
 # Init function left open for anyone to call and initialize the protocol.
 
@@ -82,9 +80,7 @@ Also this check must also be added to the init function, if you only want the in
 ```
 
 
-Go-langer
 
-medium
 
 # Exposed Initializer function in RoundImplementation allows for a malicious user to take control of Voting Stratgey
 
@@ -194,9 +190,7 @@ function init() internal {
   roundAddress = address(this);
 ```
   
-Go-langer
 
-high
 
 # Unsafe usage of ERC20 transferFrom
 
@@ -244,11 +238,9 @@ function checkedTransferFrom(IERC20 currency, address from, address to, uint256 
 Its also worth using OZ SafeERC20 library when interacting with ERC20 tokens.
 
 
-Go-langer
 
-high
 
-# RoundImplementation can be front-runned and initialized by a malicious user
+# Business logic can be manipulated
 
 ## Summary
 A malicious user can frontrun and call the init function in RoundImplementation and take control of the business logic
