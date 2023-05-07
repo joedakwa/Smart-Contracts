@@ -515,8 +515,7 @@ with various wallets.
         _owners[tokenId] = to;
 
         emit Transfer(address(0), to, tokenId);
-    }
-    ```
+    }```
 
 
  The fact that the function can be called multiple times by a single user can still result 
