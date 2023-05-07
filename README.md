@@ -642,9 +642,8 @@ function _withdrawS1Citizen () private {
 # [13] Integer Overflow/Underflow
 
 
-	```
-	function _stakeLP
-	```
+#### function _stakeLP
+	
 
 
 
