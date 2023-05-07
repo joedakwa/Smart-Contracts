@@ -27,7 +27,7 @@ This repository represents my collection of vulnerabilities and bug findings for
 | [7] Function reverts if assetType is not valid                                                                                  |   Low         |   NFT Staking & Lending     |  |
 | [8] Expected function call, doesn't get called by EOA                                                                              | Low |        | NFT Staking & Lending |
 | [9] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
-| [10] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
+| [10] Consistent calls to getReward can result in 51% attack                                              | Medium |       | NFT Staking & Lending |
 | [11] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
 | [12] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
 
@@ -463,6 +463,102 @@ https://github.com/code-423n4/2023-03-neotokyo/blob/dfa5887062e47e2d0c801ef33062
 replace with:
 
 ```for (uint256 i = 0; i < _stakerS1Position[_staker].length; i++).```
+
+
+# [10] User can call getReward multiple times causing 51% attack 
+
+	```solidity
+	function getReward (address _to) external {
+		(
+			uint256 reward,
+			uint256 daoCommision 
+		) 
+		= IStaker(STAKER).claimReward(_to);
+
+		// Mint both reward BYTES and the DAO tax to targeted recipients.
+		if (reward > 0) {
+			_mint(_to, reward);
+		}
+		if (daoCommision > 0) {
+			_mint(TREASURY, daoCommision);
+		}
+	}
+	```
+
+
+The platform staking program operates as follows:
+
+"The staker is a competitive system where stakers compete for a fixed emission rate in each of the S1 Citizen, S2 Citizen, and LP token staking pools.
+Stakers "may" choose to lock their assets for some period of time, preventing withdrawal, 
+in exchange for a multiplying bonus to their share of points in competing for BYTES 2.0 token emissions."
+
+
+
+Considering this function is marked as external, it can be called by an EOA. This means that a user can call this function multiple times in a day to claim multiple rewards. This is not the intended behavior. A malicious user called BOB can continously call getReward from various wallets to claim rewards from different wallets. 
+The only check in place, is that the rewards must be greater than 0 in order to mint to both the address "_to" and the TREASURY address.
+
+This could mean there can be significant amounts of tokens minted to all addresses, more than what is intended. So you will end up with an attacker who has multiple tokens across various wallets and an over inflated treasury worth of tokens. 
+
+
+This is evidenced below. As you can see, Bob can only call _mint once, but he can call getReward multiple times,
+with various wallets.
+
+
+ ```solidity
+ function _mint(address to, uint256 tokenId) internal virtual {
+        require(to != address(0), "ERC721: mint to the zero address");
+        require(!_exists(tokenId), "ERC721: token already minted");
+
+        _beforeTokenTransfer(address(0), to, tokenId);
+
+        _balances[to] += 1;
+        _owners[tokenId] = to;
+
+        emit Transfer(address(0), to, tokenId);
+    }
+    ```
+
+
+ The fact that the function can be called multiple times by a single user can still result 
+ in a disproportionate distribution of rewards, as the proportion of the pool that the user receives is based on the length of time their assets have been staked. 
+ So a malicious user could potentially accumulate a large proportion of the rewards by repeatedly calling getreward from different addresses, even if they can't mint more tokens each time. The other scenario to consider is a malicious user reducing their rewards to 0 by claiming BYTES tokens and then calling getReward multiple times additionally.
+
+Really important to address the risk of inflation and the 51% attack, to keep the integrity and value of the Bytes token.
+
+
+### Refactored code:
+
+```solidity
+mapping(address => uint256) private lastRewardTime;
+
+function getReward(address _to) external {
+    // Check that the user has an active stake.
+    require(IStaker(STAKER).balanceOf(msg.sender) > 0, "No active stake found.");
+
+    // Check that the user has not claimed rewards in the past 24 hours.
+    require(block.timestamp >= lastRewardTime[msg.sender] + 24 hours, "Rewards can only be claimed once per day.");
+
+    // Check that the user has rewards to claim.
+    require(IStaker(STAKER).earned(msg.sender) > 0, "No rewards to claim.");
+
+    // Record the current time as the last reward time for the user.
+    lastRewardTime[msg.sender] = block.timestamp;
+
+    // Claim the user's rewards.
+    (uint256 reward, uint256 daoCommision) = IStaker(STAKER).claimReward(msg.sender);
+
+    // Mint both reward BYTES and the DAO tax to targeted recipients.
+    _mint(_to, reward);
+    if (daoCommision > 0) {
+        _mint(TREASURY, daoCommision);
+    }
+}
+```
+
+
+With this modification, 
+the getReward function should now revert if a user with 0 rewards attempts to claim rewards.
+
 
 
 ## Contacts
