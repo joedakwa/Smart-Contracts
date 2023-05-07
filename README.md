@@ -29,7 +29,8 @@ This repository represents my collection of vulnerabilities and bug findings for
 | [9] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
 | [10] Consistent calls to getReward can result in 51% attack                                              | Medium |       | NFT Staking & Lending |
 | [11] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
-| [12] NFTs are locked in the contract if no timelockEndTime is associated with them                                             | High |       | NFT Staking & Lending |
+| [12] NFTs are locked in the contract if no timelockEndTime is associated with them                                             | High |       | NFT Staking & Lending | [13]                                               | Low |       | NFT Staking & Lending |
+
 |
 
 
@@ -637,6 +638,111 @@ function _withdrawS1Citizen () private {
 }
 ```
 
+
+# [13] Integer Overflow/Underflow
+
+
+	```function _stakeLP``` 
+
+
+
+```solidity
+storage pool = _pools[AssetType.LP];
+		unchecked {
+			uint256 points = amount * 100 / 1e18 * timelockMultiplier / _DIVISOR;
+
+			// Update the caller's LP token stake.
+			stakerLPPosition[msg.sender].timelockEndTime =
+				block.timestamp + timelockDuration;
+			stakerLPPosition[msg.sender].amount += amount;
+			stakerLPPosition[msg.sender].points += points;
+
+			// Update the pool point weights for rewards.
+			pool.totalPoints += points;
+		}
+```
+
+
+This calculation is used to calculate the number of points that the staker will receive for staking LP tokens, 
+which will determine their share of the LP pool rewards. The _DIVISOR is a constant that is set to 10000.
+
+If amount * 100 is greater than 1e20, which is the maximum value of a uint256 type, then an overflow will occur. 
+On the other hand, if timelockMultiplier is greater than 1e18, which is the maximum value of a uint128 type, 
+then an overflow will also occur.
+
+An underflow can also occur if amount or ```timelockMultiplier``` is zero or if amount * 100 is less than 1e18.	
+
+These overflow or underflow conditions can lead to incorrect point calculations, which could result in unfair distribution of rewards.
+
+Make sure to direcly import the safeMath library from OZ.
+
+
+
+### Refactored code:
+
+solidity```
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
+contract BYTES2 is PermitControl, ERC20("BYTES", "BYTES") {
+    using SafeMath for uint256;
+
+function _stakeLP (
+    uint256 _timelock
+) private {
+    uint256 amount;
+    assembly{
+        amount := calldataload(0x44)
+    }
+
+    /*
+        Attempt to transfer the LP tokens to be held in escrow by this staking 
+        contract. This transfer will fail if the caller does not hold enough 
+        tokens.
+    */
+    _safeTransferFrom(LP, msg.sender, address(this), amount);
+
+    // Decode the timelock option's duration and multiplier.
+    uint256 timelockDuration = _timelock >> 128;
+    uint256 timelockMultiplier = _timelock & type(uint128).max;
+
+    // If this is a new stake of this asset, initialize the multiplier details.
+    if (stakerLPPosition[msg.sender].multiplier == 0) {
+        stakerLPPosition[msg.sender].multiplier = timelockMultiplier;
+
+    // If a multiplier exists already, we must match it.
+    } else if (stakerLPPosition[msg.sender].multiplier != timelockMultiplier) {
+        revert MismatchedTimelock();
+    }
+
+    // Update caller staking information and asset data.
+    PoolData storage pool = _pools[AssetType.LP];
+    uint256 points = amount.mul(100).div(1e18).mul(timelockMultiplier).div(_DIVISOR);
+    stakerLPPosition[msg.sender].timelockEndTime = block.timestamp.add(timelockDuration);
+    stakerLPPosition[msg.sender].amount = stakerLPPosition[msg.sender].amount.add(amount);
+    stakerLPPosition[msg.sender].points = stakerLPPosition[msg.sender].points.add(points);
+    pool.totalPoints = pool.totalPoints.add(points);
+
+    // Emit an event recording this LP staking.
+    emit Stake(
+        msg.sender,
+        LP,
+        _timelock,
+        amount
+	
+    );
+}
+```
+
+also in stakeBytes:
+	
+```PoolData storage pool = _pools[AssetType.S2_CITIZEN];
+			unchecked {
+				uint256 bonusPoints = (amount * 100 / _BYTES_PER_POINT);
+				citizenStatus.stakedBytes += amount;
+				citizenStatus.points += bonusPoints;
+				pool.totalPoints += bonusPoints;
+			}
+```
 
 
 ## Contacts
