@@ -642,7 +642,9 @@ function _withdrawS1Citizen () private {
 # [13] Integer Overflow/Underflow
 
 
-	```function _stakeLP``` 
+	```
+	function _stakeLP
+	```
 
 
 
@@ -680,7 +682,7 @@ Make sure to direcly import the safeMath library from OZ.
 
 ### Refactored code:
 
-solidity```
+```solidity
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract BYTES2 is PermitControl, ERC20("BYTES", "BYTES") {
