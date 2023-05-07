@@ -587,7 +587,7 @@ function _withdrawS1Citizen () private {
 		if (stakedCitizen.timelockEndTime == 0) {
 			revert CannotWithdrawUnownedS1(citizenId);
 		}
-		```
+```
 
 
 
