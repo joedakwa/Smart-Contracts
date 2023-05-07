@@ -29,7 +29,8 @@ This repository represents my collection of vulnerabilities and bug findings for
 | [9] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
 | [10] Consistent calls to getReward can result in 51% attack                                              | Medium |       | NFT Staking & Lending |
 | [11] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
-| [12] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
+| [12] NFTs are locked in the contract if no timelockEndTime is associated with them                                             | High |       | NFT Staking & Lending |
+|
 
 
 
@@ -558,6 +559,83 @@ function getReward(address _to) external {
 
 With this modification, 
 the getReward function should now revert if a user with 0 rewards attempts to claim rewards.
+
+# [12] Users cant withdraw S1 or S2 Citizens if no timelockEndTime is associated with it. As the same logic is applied in the withdrawLP function, this is not intended behavior.
+
+
+
+
+Currently, there are no allowances for a S1 or S2 Citizen to withdraw their asset if they have staked it. The "if (block.timestamp < stakedCitizen.timelockEndTime)" statement will revert if the timelockEndTime is 0.
+Stakers dont need to add a timelockDuration to their NFT Citizen, according to the documentation, so they should be able to withdraw freely.
+
+```solidity
+function _withdrawS1Citizen () private {
+		uint256 citizenId;
+		assembly {
+			citizenId := calldataload(0x24)
+		}
+
+		// Validate that the caller has cleared their asset timelock.
+		StakedS1Citizen storage stakedCitizen = stakedS1[msg.sender][citizenId];
+		if (block.timestamp < stakedCitizen.timelockEndTime) {
+			revert TimelockNotCleared(stakedCitizen.timelockEndTime);
+		}
+
+}
+
+		// Validate that the caller actually staked this asset.
+		if (stakedCitizen.timelockEndTime == 0) {
+			revert CannotWithdrawUnownedS1(citizenId);
+		}
+		```
+
+
+
+
+This updated function below allows for withdrawal of an S1 Citizen without a timelock, 
+which is allowed as per the documentation.
+
+
+## Refactored code:
+
+
+```solidity
+function _withdrawS1Citizen () private {
+    uint256 citizenId;
+    assembly {
+        citizenId := calldataload(0x24)
+    }
+
+    // Validate that the caller has cleared their asset timelock.
+    StakedS1Citizen storage stakedCitizen = stakedS1[msg.sender][citizenId];
+    if (block.timestamp < stakedCitizen.timelockEndTime && stakedCitizen.timelockEndTime != 0) {
+        revert TimelockNotCleared(stakedCitizen.timelockEndTime);
+    }
+
+    // Validate that the caller actually staked this asset.
+    if (stakedCitizen.timelockEndTime == 0 && stakedCitizen.stakedBytes == 0 && stakedCitizen.stakedVaultId == 0) {
+        revert CannotWithdrawUnownedS1(citizenId);
+    }
+    
+    // Return any staked BYTES.
+    if (stakedCitizen.stakedBytes > 0) {
+        _assetTransfer(BYTES, msg.sender, stakedCitizen.stakedBytes);
+    }
+    
+    // Return any non-component Vault if one is present.
+    if (stakedCitizen.stakedVaultId != 0) {
+        _assetTransferFrom(
+            VAULT,
+            address(this),
+            msg.sender,
+            stakedCitizen.stakedVaultId
+        );
+    }
+
+    // Return the S1 Citizen.
+    _assetTransferFrom(S1_CITIZEN, address(this), msg.sender, citizenId);
+}
+```
 
 
 
