@@ -25,11 +25,11 @@ This repository represents my collection of vulnerabilities and bug findings for
 | [5] Precision Loss in setReadyForPayout                                                       | Medium           | Staking and Lending Platform    |  |
 | [6] No check to reference an external call |     Low       | NFT Staking & Lending   |  |
 | [7] Function reverts if assetType is not valid                                                                                  |   Low         |   NFT Staking & Lending     |  |
-| [8] Expected function call, doesn't get called by EOA                                                                              | Low |        | NFT Staking & Lending |
-| [9] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
-| [10] Consistent calls to getReward can result in 51% attack                                              | Medium |       | NFT Staking & Lending |
-| [11] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
-| [12] NFTs are locked in the contract if no timelockEndTime is associated with them                                             | High |       | NFT Staking & Lending | [13] Integer overflow and overflow                                              | Medium |       | NFT Staking & Lending |
+| [8] Expected function call, doesn't get called by EOA                                                                              | Low |    NFT Staking & Lending    |  |
+| [9] Incorrect Loop definition                                              | Low |  NFT Staking & Lending     |  |
+| [10] Consistent calls to getReward can result in 51% attack                                              | Medium |  NFT Staking & Lending     |  |
+| [11] Incorrect Loop definition                                              | Low |   NFT Staking & Lending    |  |
+| [12] NFTs are locked in the contract if no timelockEndTime is associated with them                                             | High |  NFT Staking & Lending     | | [13] Integer overflow and overflow                                              | Medium |   NFT Staking & Lending    |  |
 
 |
 
