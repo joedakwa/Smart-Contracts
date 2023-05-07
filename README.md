@@ -362,7 +362,7 @@ VS Code
 Manual Review
 
 
-[6] ### No check in place referencing the function call exclusive to the Citizen Contract
+# [6] No check in place referencing the function call exclusive to the Citizen Contract
 
 Bytes2.sol Function getReward
 
@@ -397,7 +397,7 @@ If the intention is to only calling of this function by the s1Citizen contract, 
 ```require(msg.sender == S1_CITIZEN, "Only the S1 Citizen can call this.");```
 
 
-[7] ### Function reverts if assetType is not Valid
+# [7] Function reverts if assetType is not Valid
 
 Function stake NeoTokyoStaker.sol
 
@@ -428,7 +428,7 @@ If the ID of the _asset is ever equal to 4, this function will not revert. If it
 With this change, the function will now throw an exception with the InvalidAssetType message if _assetType is equal to or greater than 4, which ensures that only valid asset types are accepted in the contract.
 
 
-[8] ### Function getReward in NTCitizenDeploy calls updateReward, which can only be called by citizenContract
+# [8] Function getReward in NTCitizenDeploy calls updateReward, which can only be called by citizenContract
 
 https://github.com/code-423n4/2023-03-neotokyo/blob/dfa5887062e47e2d0c801ef33062d44c09f6f36e/contracts/s1/NTCitizenDeploy.sol#L1621
 
@@ -452,7 +452,7 @@ Consider adding in the same functionality here in the getReward Function, that i
 			"require(msg.sender == address(citizenContract));"
             
             
-[9] ### Incorrect loop definition
+# [9] Incorrect loop definition
 
 function getStakerPositions NeoTokyoStaker
 
