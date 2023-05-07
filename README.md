@@ -29,7 +29,7 @@ This repository represents my collection of vulnerabilities and bug findings for
 | [9] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
 | [10] Consistent calls to getReward can result in 51% attack                                              | Medium |       | NFT Staking & Lending |
 | [11] Incorrect Loop definition                                              | Low |       | NFT Staking & Lending |
-| [12] NFTs are locked in the contract if no timelockEndTime is associated with them                                             | High |       | NFT Staking & Lending | [13]                                               | Low |       | NFT Staking & Lending |
+| [12] NFTs are locked in the contract if no timelockEndTime is associated with them                                             | High |       | NFT Staking & Lending | [13] Integer overflow and overflow                                              | Medium |       | NFT Staking & Lending |
 
 |
 
